@@ -3,6 +3,9 @@ wikipedia
 
 Wikipedia edits modeled as PROV-O
 
+To retrieve the full edit history of http://en.wikipedia.org/wiki/Siena_College, run the following commands.
+The wiki may be changed with `--api` flag to retrieve.sh, and other/more pages may be given.
+
 ```
 $ git clone https://github.com/timrdf/wikipedia.git
 
