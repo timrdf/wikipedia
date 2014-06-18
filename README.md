@@ -11,7 +11,7 @@ The wiki may be changed with a `--api` flag to [retrieve.sh](https://github.com/
 ```
 $ git clone https://github.com/timrdf/wikipedia.git
 
-$ cd data/
+$ cd wikipedia/data/
 
 $ ./retrieve.sh Siena_College
 quoted/Siena_College.xml
