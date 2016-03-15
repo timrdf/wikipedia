@@ -170,6 +170,7 @@
                      size="26385"/>
             -->
             <xsl:variable name="base" select="'https://en.wikipedia.org/w/index.php'"/>
+            <xsl:variable name="abstract"   select="concat($LT,'https://en.wikipedia.org','/wiki/',wm:title(@title),$GT)"/>
             <!-- https://en.wikipedia.org/w/index.php?title=List_of_Apollo_astronauts&diff=694923888&oldid=694919533 -->
             <xsl:value-of select="concat($NL,
                $LT,$base,'?title=',wm:title(@title),'&amp;diff=',@revid,'&amp;oldid=',@parentid,$GT,$NL,
@@ -180,6 +181,8 @@
                '   prov:wasAssociatedWith ',$LT,'https://en.wikipedia.org/wiki/User:',@user,$GT,';',$NL,
                '   rdfs:comment ',$DQ,$DQ,$DQ,replace(@comment,$DQ,concat('\\',$DQ)),$DQ,$DQ,$DQ,';',$NL,
                '.',$NL,
+               $LT,$base,'?title=',wm:title(@title),'&amp;oldid=',@parentid,$GT,' prov:specializationOf ',$abstract,' .',$NL,
+               $LT,$base,'?title=',wm:title(@title),'&amp;oldid=',@revid,   $GT,' prov:specializationOf ',$abstract,' .',$NL,
                $LT,'https://en.wikipedia.org/wiki/User:',@user,$GT,$NL,
                '   a foaf:OnlineAccount, sioc:UserAccount;',$NL,
                '   dcterms:identifier ',$DQ,@userid,$DQ,';',$NL,
