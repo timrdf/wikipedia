@@ -36,18 +36,28 @@ else
       shift
 
       if [[ "$page" =~ User:* ]]; then
-         # NOTE that the user page could also be crawled for the edits of the user page itself...
          user="${page/User:/}"
-         uclimit='50'
-         echo quoted/User__$user.xml
-         if [[ ! -e quoted/User__$user.xml ]]; then
+         users=quoted/User
+         chunk=0 && uccontinue=''
+         while [[ $chunk -eq 0 || -e $users/$user/$chunk.xml || ${#uccontinue} -gt 0 ]]; do
             # https://www.mediawiki.org/wiki/API:Usercontribs
-            echo "${api/index.php/api.php}?action=query&list=usercontribs&ucuser=$user&uclimit=$uclimit&format=xml" > quoted/User__$user.xml.url
-            curl "${api/index.php/api.php}?action=query&list=usercontribs&ucuser=$user&uclimit=$uclimit&format=xml" > quoted/User__$user.xml
-            uccontinue=`saxon.sh ../src/mw2prov.xsl xml txt -v uccontinue=true -in quoted/User__$user.xml`
-            echo "uccontinue: $uccontinue"
-            sleep $(($RANDOM%30)) # sleep 0-30 seconds, give poor Wikipedia a break...
-         fi
+            [[ "${#uccontinue}" -gt 0 ]] && ucc="&uccontinue=$uccontinue" || ucc=''
+            if [[ ! -e $users/${user}/$chunk.xml ]]; then
+               mkdir -p $users/$user
+               echo $users/$user/$chunk.xml$ucc
+               uclimit='500'
+               echo     "${api/index.php/api.php}?action=query&list=usercontribs&ucuser=$user&uclimit=$uclimit&ucdir=newer$ucc&format=xml" > $users/$user/$chunk.xml.url
+               curl -sL "${api/index.php/api.php}?action=query&list=usercontribs&ucuser=$user&uclimit=$uclimit&ucdir=newer$ucc&format=xml" > $users/$user/$chunk.xml
+               duration=$(($RANDOM%15)) && echo "zzz $duration" && sleep $duration # sleep 0-10 seconds.
+            fi
+            next=$((chunk+1))
+            if [[ -e $users/$user/$chunk.xml && ! -e $users/$user/$next.xml ]]; then
+               uccontinue=`saxon.sh ../src/mw2prov.xsl xml txt -v uccontinue=true -in $users/$user/$chunk.xml`
+               echo "$users/$user/$chunk.xml points to: $uccontinue"
+            fi
+            ((chunk++))
+         done
+         # NOTE that the user page could also be crawled for the edits of the user page itself...
       else
          echo quoted/$page.xml
 
