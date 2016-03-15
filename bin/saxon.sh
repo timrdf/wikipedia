@@ -179,19 +179,19 @@ while [ $# -gt 0 ]; do
 
    if [ $multiple_files = "true" -o $output_dir_set = "true" ]; then
       if [ ! -e $outfile -o $overwrite = "yes" ]; then
-         echo $base $outfile
-        #echo java $memory_option $cp $class -dtd:off $cxsl $artifact $xsl $vars _to_ $outfile
+         #echo $base $outfile
+        #echo java $memory_option $cp $class -dtd:off $cxsl $artifact $xsl $vars _to_ $outfile >&2
               java $memory_option $cp $class -dtd:off $cxsl $artifact $xsl $vars    > $outfile
       else 
-         echo "$base    WARNING: $outfile already exists. Did not overwrite."
+         echo "$base    WARNING: $outfile already exists. Did not overwrite." >&2
       fi
    else
       # Only one file was given
       if [ $overwrite = "yes" ]; then
-         echo java $memory_option $cp $class -dtd:off $cxsl $artifact $xsl $vars > $outfile
+         #echo java $memory_option $cp $class -dtd:off $cxsl $artifact $xsl $vars > $outfile >&2
               java $memory_option $cp $class -dtd:off $cxsl $artifact $xsl $vars > $outfile
       else
-         echo java $memory_option $cp $class -dtd:off $cxsl $artifact $xsl $vars
+         #echo java $memory_option $cp $class -dtd:off $cxsl $artifact $xsl $vars >&2
               java $memory_option $cp $class -dtd:off $cxsl $artifact $xsl $vars
      fi
    fi
