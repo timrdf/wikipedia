@@ -124,12 +124,14 @@
                   <xsl:value-of select="concat('   prov:endedAtTime ',$DQ,wm:timestamp,$DQ,'^^xsd:dateTime;',$NL)"/>
                   <xsl:value-of select="concat('   prov:used      ',$antecedent,';',$NL)"/>
                   <xsl:value-of select="concat('   prov:generated ',$revision,';',$NL)"/>
-                  <xsl:variable name="user" select="if (wm:contributor/wm:username) then concat($LT,$base,'/wiki/User:',wm:title(wm:contributor/wm:username),$GT) else ''"/>
+                  <xsl:variable name="user" select="if (wm:contributor/wm:username) then concat($LT,$base,'/wiki/User:',wm:user(wm:title(wm:contributor/wm:username)),$GT) else ''"/>
                   <xsl:if test="$user">
                      <xsl:value-of select="concat('   prov:wasAssociatedWith ',$user,';',$NL)"/>
                   </xsl:if>
                   <xsl:if test="string-length(wm:comment)">
-                     <xsl:value-of select="concat('   rdfs:comment ',$DQ,$DQ,$DQ,replace(wm:comment,$DQ,concat('\\',$DQ)),$DQ,$DQ,$DQ,';',$NL)"/>
+                     <xsl:value-of select="concat('   rdfs:comment ',$DQ,$DQ,$DQ,
+                                                                     replace(replace(wm:comment,'\\','\\\\'),$DQ,concat('\\',$DQ)),
+                                                                     $DQ,$DQ,$DQ,';',$NL)"/>
                   </xsl:if>
                   <xsl:value-of select="concat('.',$NL)"/>
                   <xsl:if test="$user">
@@ -171,6 +173,12 @@
             -->
             <xsl:variable name="base" select="'https://en.wikipedia.org/w/index.php'"/>
             <xsl:variable name="abstract"   select="concat($LT,'https://en.wikipedia.org','/wiki/',wm:title(@title),$GT)"/>
+            <!--
+               https://en.wikipedia.org/wiki/History_of_baseball
+               =>
+               http://dbpedia.org/resource/History_of_baseball
+            -->
+            <xsl:variable name="dbpedia"    select="concat($LT,'http://dbpedia.org/resource/',wm:title(@title),$GT)"/>
             <!-- https://en.wikipedia.org/w/index.php?title=List_of_Apollo_astronauts&diff=694923888&oldid=694919533 -->
             <xsl:value-of select="concat($NL,
                $LT,$base,'?title=',wm:title(@title),'&amp;diff=',@revid,'&amp;oldid=',@parentid,$GT,$NL,
@@ -178,12 +186,13 @@
                '   prov:endedAtTime ',$DQ,@timestamp,$DQ,'^^xsd:dateTime;',$NL,
                '   prov:used      ',$LT,$base,'?title=',wm:title(@title),'&amp;oldid=',@parentid,$GT,';',$NL,
                '   prov:generated ',$LT,$base,'?title=',wm:title(@title),'&amp;oldid=',@revid,$GT,';',$NL,
-               '   prov:wasAssociatedWith ',$LT,'https://en.wikipedia.org/wiki/User:',@user,$GT,';',$NL,
-               '   rdfs:comment ',$DQ,$DQ,$DQ,replace(@comment,$DQ,concat('\\',$DQ)),$DQ,$DQ,$DQ,';',$NL,
+               '   prov:wasAssociatedWith ',$LT,'https://en.wikipedia.org/wiki/User:',wm:user(@user),$GT,';',$NL,
+               if (string-length(@comment)) then concat('   rdfs:comment ',$DQ,$DQ,$DQ,replace(@comment,$DQ,concat('\\',$DQ)),$DQ,$DQ,$DQ,';',$NL) else '',
                '.',$NL,
                $LT,$base,'?title=',wm:title(@title),'&amp;oldid=',@parentid,$GT,' prov:specializationOf ',$abstract,' .',$NL,
                $LT,$base,'?title=',wm:title(@title),'&amp;oldid=',@revid,   $GT,' prov:specializationOf ',$abstract,' .',$NL,
-               $LT,'https://en.wikipedia.org/wiki/User:',@user,$GT,$NL,
+               $dbpedia,' foaf:isPrimaryTopicOf ',$abstract,' .',$NL,
+               $LT,'https://en.wikipedia.org/wiki/User:',wm:user(@user),$GT,$NL,
                '   a foaf:OnlineAccount, sioc:UserAccount;',$NL,
                '   dcterms:identifier ',$DQ,@userid,$DQ,';',$NL,
                '.'
@@ -197,6 +206,11 @@
 <xsl:function name="wm:title">
    <xsl:param name="title"/>
    <xsl:value-of select="replace($title,' ','_')"/>
+</xsl:function>
+
+<xsl:function name="wm:user">
+   <xsl:param name="username"/>
+   <xsl:value-of select="replace($username,'\^','%5E')"/>
 </xsl:function>
 
 <xsl:variable name="NL" select="'&#xa;'"/>
