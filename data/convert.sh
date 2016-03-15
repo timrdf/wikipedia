@@ -7,11 +7,11 @@
 #
 
 if [[ "$1" == 'clean' ]]; then
-   if [[ "$2" == 'egHTML' ]]; then
-      find -L automatic -name "*.egHTML" -print0 | \
+   if [[ "$2" == 'ttl' ]]; then
+      find -L automatic -name "*.xml.ttl" -print0 | \
          xargs -0 -n 1 -P ${CSV2RDF4LOD_CONCURRENCY:-1} -I converted rm converted
    else
-      $0 clean 'egHTML'
+      $0 clean 'ttl'
    fi
 fi
 
